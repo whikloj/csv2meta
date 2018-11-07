@@ -1,0 +1,6 @@
+name = csv2meta
+description = converts a CSV file into a bunch of metadata files
+package = CSV2Meta
+core = 7.x
+php = 5.2
+
