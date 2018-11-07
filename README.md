@@ -28,12 +28,12 @@ YAML (Available via PECL)
 
 
 Usage:
-drush csv2meta --csvfile=/path/to/csv/file --yamlfile=/path/to/yaml/file [--outdir=/out/dir/path] [zipfile=/path/to/zip/file]
+drush csv2meta --csvfile=/path/to/csv/file --yamlfile=/path/to/yaml/file [--outdir=/out/dir/path] [--zipfile=/path/to/zip/file]
 
 NOTES:
 1) data in a cell the spreadsheet can be separated by a value to allow the cell to be exploded and each part of the cell to be added as a field. By default the value is "--" and it can be modified in the metadataobj.inc file. Why is this feature useful? I've found in the past that spreadsheet values for MODS subject topics are given as multiple values in the same cell. So a feature to split a string and add each part as a element is useful.
 
-2) It sems that only one attribute can be used per element. I'm not sure why this is.
+2) It seems that only one attribute can be used per element. I'm not sure why this is.
 
 
 
