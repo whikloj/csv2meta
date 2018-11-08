@@ -1,0 +1,31 @@
+# demo YAML file for csv2meta
+#
+# This line controls if a field is used to generate the output filename
+filename	: ID
+
+# These lines control the routing between the spreadsheet field names and
+# the metadata fields. Note the xpath(ish) path structures for the metadata
+# and that some fields can have attribute fields. Also that the "Topics" field
+# has field separators, even though they're not specified here
+ID			: 
+  attribute		: type=local		
+  path			: identifier
+Name			: name/role/namePart
+Birth			: subject/temporal
+Death			: subject/temporal
+Birthplace Country	: subject/hierarchicalGeographic/country
+Birthplace City		: subject/hierarchicalGeographic/city
+Genre			: abstract
+Topics			:
+  attribute		: authority=lcsh
+  path			: subject/topics
+
+# here are the fixed fields, metadata fields that aren't filled by CSV fields
+# and add data that is static for all records
+fixed1:
+  path		: accessCondition
+  attribute	: type=Creative Commons License
+  value		: by-nc/3.0/
+fixed2:
+  path		: location/physicalLocation
+  value		: University of Manitoba Archives &amp; Special Collections
