@@ -103,9 +103,7 @@ function csv2meta_process($csvname,$yamlname,$outdirname,$zipname=None, $delim="
           */ 
           if ($zipname !== None) {
             drush_print("Adding file ".$outpath);
-            drush_print("basename is ".basename($outpath));
             $zip->addFile($outpath, basename($outpath));
-            drush_print($zip->numFiles);
           }
         }
         $itemcnt = $itemcnt + 1;
