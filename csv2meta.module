@@ -12,7 +12,7 @@ require_once("metadataobj.inc");
 const FILE_PREFIX = "item";
 const DEFAULT_EXT = "txt";
 
-function csv2meta_process($csvname,$yamlname,$outdirname,$zipname=None, $delim="\t") {
+function csv2meta_execute($csvname,$yamlname,$outdirname,$zipname=None, $delim="\t") {
   $header = "";
 
   // read in the YAML glue file

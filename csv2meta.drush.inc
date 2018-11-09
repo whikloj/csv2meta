@@ -56,7 +56,7 @@ function drush_csv2meta() {
     $zip = drush_get_option('zipfile');
     $usezip = TRUE;
   }
-  csv2meta_process($csv,$yaml,$outdir,$zip);
+  csv2meta_execute($csv,$yaml,$outdir,$zip);
 }
 
 ?>
