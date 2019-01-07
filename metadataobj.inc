@@ -11,57 +11,59 @@
 class MetadataObject {
 
   public function render($mXML, $prefix, $root, $field, $value, $attrib, $valuedelimit ) {
-    
-    // retrieve a list of existing elements in the DOM
-    $nodelist = $mXML->getElementsByTagName($prefix.":".$root);
-    if ($nodelist->length > 0) {
-      $parent = $nodelist->item(0);
-      // explode the path before we traverse it
-      $fieldpath = explode( "/",$field );
-      // if the attribute exists, explode that into an array
-      $attribarr = None;
-      if (strlen($attrib) > 0 )
-        $attribarr = explode("=",$attrib);
-      for($count=0; $count < count($fieldpath); $count++) {
-        $tmpfield = $fieldpath[$count];
-        $nsfield = $prefix.":".$tmpfield;
-        $node = $mXML->getElementsByTagName($nsfield);
-        if ($node->length == 0) {
-          // last token in the path?
-          if ($count < count($fieldpath)-1) {
-            $xmlfield = $mXML->createElement($nsfield);
-            $parent = $parent->appendChild( $xmlfield );
-          }
-          else {
-            /* check if the value is actually more than one value, explode
-               and append each value
-            */
-            $values = explode($valuedelimit,$value);
-            for ($valcnt=0; $valcnt < count($values); $valcnt++) {
-              $tmpvalue = $values[$valcnt];
-              $xmlfield = $mXML->createElement( $nsfield, $tmpvalue );
-              if (count($attribarr) > 1)
-                $xmlfield->setAttribute($attribarr[0],$attribarr[1]);
-              $parent->appendChild( $xmlfield );
-            }
+    //get document root to start
+    $parent = $mXML->documentElement;
+    // now, we traverse the XML, scoping down the path for the field
+    $fieldpath = explode("/",$field);
+  
+    // check the children of the parent node for a match with the current part of the field path
+    $children = $parent->childNodes;
+    $nsfield = $prefix.":".$fieldpath[0];
+    $pathfound = false;
+    for($count=0; $count < count($fieldpath); $count++) {
+      $children = $parent->childNodes;
+      $nsfield = $prefix.":".$fieldpath[$count];
+      $pathfound = false;
+      // check the children of the parent node for a match with the current part of the field path
+      foreach ($children as $child) {
+        if (!strcmp($child->tagName,$nsfield)) {
+          //found match in tree
+          $pathfound = true;
+          $parent = $child;
+          break;
+        }
+      }
+      // if its the end node AND a node of the same name exists,
+      // roll back the parent to the parents parent.
+      if ($count == count($fieldpath)-1) {
+        if ($pathfound == true) {
+          if ($parent !== $mXML->documentElement)
+            $parent = $parent->parentNode;
+        }
+        // if its multiple values, explode and add each one
+        $values = explode($valuedelimit,$value);
+        if (count($values) > 1) {
+          foreach ($values as $tmpvalue) {
+            $xmlfield = $mXML->createElement( $nsfield, $tmpvalue );
+            $attribarr = explode("=",$attrib);
+            $xmlfield->setAttribute($attribarr[0],$attribarr[1]);
+            $parent->appendChild( $xmlfield );
           }
         }
         else {
-          // last item in the path?
-          if ($count < count($fieldpath)-1) {
-            $parent = $node->item(0);
-          }
-          else {
-            // end of the branch, so append the values together
-            // check if its actually multiple values, explode if true 
-            $values = explode($valuedelimit,$value);
-            foreach ($values as $tmpvalue) {
-              $xmlfield = $mXML->createElement( $nsfield, $tmpvalue );
-              if (count($attribarr) > 1)
-                $xmlfield->setAttribute($attribarr[0],$atttribarr[1]);
-              $parent->appendChild( $xmlfield );
-            }
-          }
+          // single value, just add it
+          $xmlfield = $mXML->createElement($nsfield, $value);
+          $attribarr = explode("=",$attrib);
+          $xmlfield->setAttribute($attribarr[0],$attribarr[1]);
+          $parent->appendChild( $xmlfield );
+        }
+      }
+      else {
+        // not the end node. if the node doesnt exist, add it
+        if ($pathfound == false) {
+          // fragment is still on path
+          $xmlfield = $mXML->createElement($nsfield);
+          $parent = $parent->appendChild($xmlfield);
         }
       }
     }

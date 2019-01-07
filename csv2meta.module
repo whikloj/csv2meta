@@ -56,19 +56,22 @@ function csv2meta_execute($csvname,$yamlname,$outdirname,$zipname=None, $delim="
           $headval = $header[$cnt];
           $mdfield = $yaml[0][$headval];
           $attrib = "";
-          if (is_array($mdfield)) {
-            $attrib = $mdfield["attribute"];
-            $mdfield = $mdfield["path"];
+          if (!empty($mdfield))
+          {
+            if (is_array($mdfield)) {
+              $attrib = $mdfield["attribute"];
+              $mdfield = $mdfield["path"];
+            }
+            /* check if the current cell is the one used for
+               the filename.
+            */
+            if ($header[$cnt] == $yaml[0]["filename"]) {
+              $filename = $line[$cnt];
+            }
+            $mdval = $line[$cnt];
+            // now we have the metadata field and the value
+            $obj->render($xml, $mdfield, $mdval, $attrib);
           }
-          /* check if the current cell is the one used for
-             the filename.
-          */
-          if ($header[$cnt] == $yaml[0]["filename"]) {
-            $filename = $line[$cnt];
-          }
-          $mdval = $line[$cnt];
-          // now we have the metadata field and the value
-          $obj->render($xml, $mdfield, $mdval, $attrib);
         }
         // add  the fixedN fields from the YAML file
         $cnt=1;
@@ -77,6 +80,7 @@ function csv2meta_execute($csvname,$yamlname,$outdirname,$zipname=None, $delim="
           $field = sprintf("fixed%d",$cnt);
           $valarr = $yaml[0][$field];
           if ((sizeof($valarr)) > 0) {
+            drush_print("found ".$field);
             $fixedfound = TRUE;
             $cnt = $cnt+1;
             $attrib = "";
@@ -102,7 +106,6 @@ function csv2meta_execute($csvname,$yamlname,$outdirname,$zipname=None, $delim="
              metadata files to a zip file
           */ 
           if ($zipname !== None) {
-            drush_print("Adding file ".$outpath);
             $zip->addFile($outpath, basename($outpath));
           }
         }
