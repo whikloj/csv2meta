@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods xmlns="http://www.loc.gov/mods/v3"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema"
+      version="3.4">
+    <titleInfo>
+        <title>{{ title.value }}</title>
+        {% if subtitle != null %}
+        <subTitle>{{ subtitle.value }}</subTitle>
+        {% endif %}
+    </titleInfo>
+    {%  if names != null %}
+        {%  for name in names %}
+            {% include 'mods.name.twig' %}
+        {%  endfor %}
+    {% endif %}
+    {% if dateIssued != null %}
+    <dateIssued>{{ dateIssued.value }}</dateIssued>
+    {%  endif %}
+    {% if identifiers != null %}
+        {%  for identifier in identifiers %}
+        <identifier type="{{ identifier.type }}">{{ identifier.value }}</identifier>
+        {%  endfor %}
+    {% endif %}
+    {% if hierarchicGeographic != null %}
+        {%  for geo in hierarchicGeographic %}
+        <hierarchicalGeographic>
+            {%  if geo.continent %}
+            <continent>{{  geo.continent.value }}</continent>
+            {%  endif %}
+            {%  if geo.country %}
+            <country>{{  geo.country.value }}</country>
+            {%  endif %}
+            {%  if geo.state %}
+            <state>{{  geo.state.value }}</state>
+            {%  endif %}
+            {%  if geo.county %}
+            <county>{{ geo.county.value }}</county>
+            {%  endif %}
+            {%  if geo.city %}
+            <city>{{ geo.city.value }}</city>
+            {%  endif %}
+            {%  if geo.citysection %}
+            <citySection>{{ geo.citysection.value }}</citySection>
+            {%  endif %}
+        </hierarchicalGeographic>
+        {% endfor %}
+    {% endif %}
+</mods>
