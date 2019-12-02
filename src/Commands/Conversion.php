@@ -23,12 +23,30 @@ const DEFAULT_EXT = "txt";
 class Conversion extends Command
 {
 
+    /**
+     * The parsed Yaml config file.
+     *
+     * @var array
+     */
     private $yaml;
 
+    /**
+     * Metadata elements.
+     *
+     * @var array
+     */
     private $metadataFields;
 
+    /**
+     * The twig environment to render with.
+     *
+     * @var \Twig\Environment
+     */
     private $twig;
 
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this->setName('csv2meta')
@@ -49,6 +67,9 @@ class Conversion extends Command
                 'The extension to use for output files.', 'txt');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         if (!is_null($input->getArgument('yamlfile'))) {
@@ -68,6 +89,9 @@ class Conversion extends Command
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $header = "";
@@ -104,18 +128,28 @@ class Conversion extends Command
 
             $this->metadataFields = [];
 
-            foreach ($header as $item) {
-                if (array_key_exists($item, $this->yaml)) {
-                    $this->metadataFields[$item] = $this->parseYamlStruct($item, $this->yaml[$item]);
+            # Initialize all the fields in the records.
+            foreach ($header as $headval) {
+                if (isset($this->yaml[$headval]) && is_array($this->yaml[$headval])) {
+                    $this->metadataFields[$headval] = $this->parseYamlStruct($headval, $this->yaml[$headval]);
                 }
             }
+
+            # Now do all the leftover fields
+            $leftover = array_diff_key($this->yaml, $this->metadataFields);
+            # Parse all fields in the Yaml
+            foreach ($leftover as $item => $data) {
+                if (is_array($data)) {
+                    $this->metadataFields[$item] = $this->parseYamlStruct($item, $data);
+                }
+            }
+
             // continue with the rest of the lines in the file
             $itemcnt = 1;
 
             while (($line = fgetcsv($csv, 1024, $delim)) !== false) {
                 $filename = "";
                 // initialize the DOM/XML object
-
 
                 // for each cell, work out the correct MD field
                 for ($cnt = 0; $cnt < sizeof($line); $cnt++) {
@@ -167,7 +201,17 @@ class Conversion extends Command
     }
 
 
-    private function parseYamlStruct($name, $yaml)
+    /**
+     * @param string $name
+     *  Yaml config field name.
+     * @param array $yaml
+     *  Yaml configuration data for the above field.
+     * @return \robyj\csv2meta\Objects\MetadataElement
+     *  The metadata configured object.
+     * @throws \Exception
+     *  When you try to construct using a string instead of an array.
+     */
+    private function parseYamlStruct($name, array $yaml)
     {
         $specialFields = [
             # the twig template variable this maps to.
@@ -178,6 +222,10 @@ class Conversion extends Command
             'value',
             # make an array of arrays if multivalued.
             'multivalued'];
+        if (!is_array($yaml)) {
+            # Can only generate structures from yaml arrays, a string is not correct.
+            throw new \Exception("Not a Yaml array");
+        }
 
         $obj = new MetadataElement($name);
         $fields = array_keys($yaml);
@@ -191,8 +239,6 @@ class Conversion extends Command
                 if (isset($attrib['value'])) {
                     // Is a literal
                     $obj->addAttribute($name, $attrib['value']);
-                } elseif (isset($attrib['reference'])) {
-                    // Is a reference, need to pull it in here.
                 }
             }
         }
@@ -207,15 +253,21 @@ class Conversion extends Command
         }
         foreach ($process as $tagName) {
             $tag = $yaml[$tagName];
-            if (isset($tag['value'])) {
-                $child = new MetadataElement($tagName);
-                $child->setValue($tag['value']);
-            }
             if (isset($tag['reference'])) {
+                # Reference to another column in the record.
                 if (!isset($this->metadataFields[$tag['reference']])) {
                     $this->metadataFields[$tag['reference']] = $this->parseYamlStruct($tag['reference'], $this->yaml[$tag['reference']]);
                 }
-                $obj->addChild($this->metadataFields[$tag['reference']]);
+                $child = $this->metadataFields[$tag['reference']];
+            } elseif (isset($tag['value'])) {
+                # A literal child, so store it here only.
+                $child = new MetadataElement($tagName);
+                $child->setTwigField($tagName);
+                $child->setValue($tag['value']);
+            }
+            if (isset($child)) {
+                $obj->addChild($child);
+                unset($child);
             }
         }
         return $obj;

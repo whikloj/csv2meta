@@ -1,0 +1,89 @@
+# demo YAML file for csv2meta
+#
+# This line controls if a field is used to generate the output filename
+filename	: ID
+
+# These lines control the routing between the spreadsheet field names and
+# the twig variables. The syntax is
+# FieldHeader:  <- What the column has in row 1
+#   twigVar: egg <!-- This field maps to the twig variable egg
+#   multivalued: true|false <!-- if set true then make egg an array of arrays.
+#   attributes: <!-- The attributes variable
+#     type: <!-- the attribute name (ie. egg.type variable)
+#       value: BOB <!--- the attribute value (ie. egg.type.value)
+#   Subfield:  <!-- an embed field
+#     reference: <!-- Reference to another field to embed.
+#     value: <!-- a literal to use as the value (only this OR reference above)
+#
+
+Title:
+  twigVar: title
+
+Subtitle:
+  twigVar: subtitle
+
+Author_personal:
+  multivalued: true
+  twigVar: names
+  attributes:
+    type:
+      value: personal
+  role:
+    reference: Personal_role
+
+Personal_role:
+  twigVar: role
+  value: aut
+  attributes:
+    type:
+      value: code
+
+Author_corporate:
+  multivalued: true
+  twigVar: names
+  attributes:
+    type:
+      value: corporate
+  role:
+    reference: Personal_role
+
+Identifier_isbn:
+  multivalued: true
+  twigVar: identifiers
+  attributes:
+    type:
+      value: isbn
+
+DateIssued:
+  twigVar: dateIssued
+
+Pages:
+  twigVar: pages
+  attributes:
+    unit:
+      value: page
+
+HierarchicalGeographic:
+  multivalued: true
+  twigVar: hierarchicGeographic
+  continent:
+    value: North America
+  country:
+    value: Canada
+  state:
+    reference: Province
+  county:
+    reference: County
+  city:
+    reference: City
+  citySection:
+    reference: CitySection
+
+Province:
+  twigVar: state
+County:
+  twigVar: county
+City:
+  twigVar: city
+CitySection:
+  twigVar: citySection

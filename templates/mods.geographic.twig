@@ -1,0 +1,20 @@
+<hierarchicalGeographic>
+    {%-  if geo.continent is not empty -%}
+        <continent>{{-  geo.continent.value -}}</continent>
+    {%-  endif %}
+    {%-  if geo.country is not empty -%}
+        <country>{{-  geo.country.value -}}</country>
+    {%-  endif -%}
+    {%-  if geo.state is not empty -%}
+        <state>{{-  geo.state.value -}}</state>
+    {%-  endif -%}
+    {%-  if geo.county is not empty -%}
+        <county>{{- geo.county.value -}}</county>
+    {%-  endif -%}
+    {%-  if geo.city is not empty -%}
+        <city>{{- geo.city.value -}}</city>
+    {%-  endif -%}
+    {%-  if geo.citysection is not empty -%}
+        <citySection>{{- geo.citysection.value -}}</citySection>
+    {%-  endif -%}
+</hierarchicalGeographic>
