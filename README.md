@@ -1,39 +1,63 @@
-This is a drupal 7.x module that can be called from Drush and allows a CSV formatted
-spreadsheet to be converted to a metadata entity (as of version 1.0, MODS only.
-Other standards such as PBCORE may be added).
+This is a Symfony Console command that converts a Tab-separated spreadsheet to an XML file 
+(currently only MODS). Other standards such as PBCORE may be added.
 
 
 How it works:
 To use the module, you need two files as well as this module installed correctly:
 
-1) A CSV file, tab separated, with the first row being a representation of the field type
+1) A file, tab separated, with the first row being a representation of the field type
    ("title","access date","contributor", etc) followed by each subsequent row representing
    an item
 
 2) A YAML file broken into 2 or more sections. One section is only 1 line that informs the
    module which field, if any, to use as the output filename for the records. A second
-   section is used to connect the CSV header fields to the metadata field, as well as
-   allowing the use of an attribute with the field. A third section, which is optional
-   and very site specific, gives what I call "fixed fields" and these are fields that are
-   to be injected into the metadata record but aren't represented by CSV data. I use these
-   generally as placeholders in the metadata record that are filled in further along in
-   the ingest procedure. They could also be used for site specific data such as license
-   records, URLs, any data that has to be added to all records.
+   section is used to connect the header fields to the metadata field, as well as
+   allowing the use of an attribute with the field.
 
 The output of the module can either be individual metadata records written to a given
 directory or a zip file that contains the metadata records.
 
-Prerequisites:
-YAML (Available via PECL)
+### Installation
+```bash
+git clone https://github.com/robyj/csv2meta
+cd csv2meta
+composer install
+```
 
+### Usage
+The correct usage of the command is described with the `--help` argument
+```bash
+> ./bin/console csv2meta --help
+Description:
+  Convert CSV to metadata.
 
 Usage:
-drush csv2meta --csvfile=/path/to/csv/file --yamlfile=/path/to/yaml/file [--outdir=/out/dir/path] [--zipfile=/path/to/zip/file]
+  csv2meta [options] [--] <csvfile> <yamlfile> <directory>
 
-NOTES:
-1) data in a cell the spreadsheet can be separated by a value to allow the cell to be exploded and each part of the cell to be added as a field. By default the value is "--" and it can be modified in the metadataobj.inc file. Why is this feature useful? I've found in the past that spreadsheet values for MODS subject topics are given as multiple values in the same cell. So a feature to split a string and add each part as a element is useful.
+Arguments:
+  csvfile                      Path to the csv file to use as metadata source
+  yamlfile                     Path to the YAML configuration file.
+  directory                    Path to output directory
 
-2) It seems that only one attribute can be used per element. I'm not sure why this is.
+Options:
+  -o, --output[=OUTPUT]        The output metadata format [default: "MODS"]
+  -z, --zipfile=ZIPFILE        File name to output zipfile
+  -d, --delimiter=DELIMITER    Delimiter [default: "\t"]
+  -x, --extension[=EXTENSION]  The extension to use for output files. [default: "txt"]
+  -h, --help                   Display this help message
+  -q, --quiet                  Do not output any message
+  -V, --version                Display this application version
+      --ansi                   Force ANSI output
+      --no-ansi                Disable ANSI output
+  -n, --no-interaction         Do not ask any interactive question
+  -v|vv|vvv, --verbose         Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 
+                               3 for debug
+```
 
 
+Using the `config.yaml.dist` example configuration file and the provided `test_metadata.tsv` run:
+```bash
+./bin/console csv2meta test_metadata.tsv config.yaml.dist ../someOutputDirectory
+```
 
+Will output 2 files in the MODS format.
