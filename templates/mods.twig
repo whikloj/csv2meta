@@ -6,34 +6,32 @@
       version="3.4">
     <titleInfo>
         <title>{{- title.value -}}</title>
-        {%- if subtitle is not empty -%}
-        <subTitle>{{- subtitle.value -}}</subTitle>
-        {%- endif -%}
+        {% if subtitle is not empty %}<subTitle>{{- subtitle.value -}}</subTitle>{% endif %}
     </titleInfo>
-    {%-  if names is not empty -%}
-        {%-  for name in names -%}
-            {%- include 'mods.name.twig' -%}
-        {%-  endfor -%}
-    {%- endif -%}
-    {%- if dateIssued is not empty -%}
+    {% if names is not empty %}
+        {% for name in names %}
+            {% include 'mods.name.twig' %}
+        {% endfor %}
+    {% endif %}
+    {% if dateIssued is not empty %}
     <dateIssued>{{- dateIssued.value -}}</dateIssued>
-    {%-  endif -%}
-    {%- if identifiers is not empty -%}
-        {%-  for identifier in identifiers -%}
-        <identifier{%- if identifier.type -%} type="{{- identifier.type -}}"{%- endif -%}>{{- identifier.value -}}</identifier>
-        {%-  endfor -%}
-    {%- endif -%}
-    {%-  if pages is not empty -%}
+    {% endif %}
+    {% if identifiers is not empty %}
+        {%  for identifier in identifiers %}
+        <identifier{% if identifier.type %} type="{{- identifier.type -}}"{% endif %}>{{- identifier.value -}}</identifier>
+        {% endfor %}
+    {% endif %}
+    {% if pages is not empty %}
         <physicalDescription>
-            <extent{%- if pages.type -%}type="{{- pages.type -}}"{%- endif -%}>
+            <extent{% if pages.unit %} unit="{{- pages.type -}}"{% endif %}>
                 {{- pages.value -}}
             </extent>
         </physicalDescription>
-    {%- endif -%}
-    {%- if hierarchicGeographic is not empty -%}
-        {%-  for geo in hierarchicGeographic -%}
-            {%- include 'mods.geographic.twig' -%}
-        {%- endfor -%}
-    {%- endif -%}
+    {% endif %}
+    {% if hierarchicGeographic is not empty %}
+        {%  for geo in hierarchicGeographic %}
+            {% include 'mods.geographic.twig' %}
+        {% endfor %}
+    {% endif %}
 </mods>
 {%  endspaceless %}

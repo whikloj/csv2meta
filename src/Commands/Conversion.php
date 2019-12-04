@@ -10,6 +10,7 @@ namespace robyj\csv2meta\Commands;
  */
 
 use robyj\csv2meta\Objects\MetadataElement;
+use robyj\csv2meta\Objects\MetadataManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,7 +36,7 @@ class Conversion extends Command
      *
      * @var array
      */
-    private $metadataFields;
+    private $metadataMgr;
 
     /**
      * The twig environment to render with.
@@ -78,7 +79,6 @@ class Conversion extends Command
             $yamlname = $input->getArgument('yamlfile');
             // read in the YAML glue file
             $yaml = Yaml::parseFile($yamlname);
-            //$yaml = \yaml_parse_file($yamlname, -1);
             if ($yaml === false) {
                 $output->setDecorated(true);
                 $output->writeln("ERROR parsing Yaml file ({$yamlname})");
@@ -95,6 +95,7 @@ class Conversion extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $header = "";
+        $this->metadataMgr = new MetadataManager();
 
         $delim = $input->getOption('delimiter');
         $extension = $input->getOption('extension');
@@ -126,21 +127,19 @@ class Conversion extends Command
                 $headerfound = true;
             }
 
-            $this->metadataFields = [];
-
             # Initialize all the fields in the records.
             foreach ($header as $headval) {
                 if (isset($this->yaml[$headval]) && is_array($this->yaml[$headval])) {
-                    $this->metadataFields[$headval] = $this->parseYamlStruct($headval, $this->yaml[$headval]);
+                    $this->metadataMgr->addField($headval, $this->parseYamlStruct($headval, $this->yaml[$headval]));
                 }
             }
 
             # Now do all the leftover fields
-            $leftover = array_diff_key($this->yaml, $this->metadataFields);
+            $leftover = array_diff_key($this->yaml, $this->metadataMgr->getAllFields());
             # Parse all fields in the Yaml
             foreach ($leftover as $item => $data) {
                 if (is_array($data)) {
-                    $this->metadataFields[$item] = $this->parseYamlStruct($item, $data);
+                    $this->metadataMgr->addField($item, $this->parseYamlStruct($item, $data));
                 }
             }
 
@@ -154,20 +153,18 @@ class Conversion extends Command
                 // for each cell, work out the correct MD field
                 for ($cnt = 0; $cnt < sizeof($line); $cnt++) {
                     $headval = $header[$cnt];
-                    if ($header[$cnt] == $this->yaml["filename"]) {
+                    if (isset($this->yaml['filename']) && $this->yaml['filename'] == $headval) {
+                        # This is the filename column
                         $filename = $line[$cnt];
                     }
 
                     $mdval = $line[$cnt];
-                    if (array_key_exists($headval, $this->metadataFields)) {
-                        $this->metadataFields[$headval]->setValue($mdval);
+                    if ($this->metadataMgr->hasField($headval)) {
+                        $this->metadataMgr->getField($headval)->setValue($mdval);
                     }
                 }
 
-                $dataArray = [];
-                foreach ($this->metadataFields as $field) {
-                    $dataArray = array_merge_recursive($dataArray, $field->getDataArray());
-                }
+                $dataArray = $this->metadataMgr->getMetadataArray();
                 $template = $this->twig->load('mods.twig');
                 $metadata = $template->render($dataArray);
 
@@ -255,10 +252,10 @@ class Conversion extends Command
             $tag = $yaml[$tagName];
             if (isset($tag['reference'])) {
                 # Reference to another column in the record.
-                if (!isset($this->metadataFields[$tag['reference']])) {
-                    $this->metadataFields[$tag['reference']] = $this->parseYamlStruct($tag['reference'], $this->yaml[$tag['reference']]);
+                if (!$this->metadataMgr->hasField($tag['reference'])) {
+                    $this->metadataMgr->addField($tag['reference'], $this->parseYamlStruct($tag['reference'], $this->yaml[$tag['reference']]));
                 }
-                $child = $this->metadataFields[$tag['reference']];
+                $child = $this->metadataMgr->getField($tag['reference']);
             } elseif (isset($tag['value'])) {
                 # A literal child, so store it here only.
                 $child = new MetadataElement($tagName);

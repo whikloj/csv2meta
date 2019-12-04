@@ -1,10 +1,10 @@
-{%-  if name.value is not empty -%}
-<name type="{{- name.type -}}">
-    <namePart>{{- name.value -}}</namePart>
-    <role>
-        <roleTerm {%- if name.role.type -%}type="{{- name.role.type -}}"{%- endif -%}>
+{% if name.value is not empty %}
+    <name type="{{- name.type -}}">
+        <namePart>{{- name.value -}}</namePart>
+        <role>
+            <roleTerm{% if name.role.type %} type="{{- name.role.type -}}"{% endif %}>
             {{-  name.role.value -}}
-        </roleTerm>
-    </role>
-</name>
-{%-  endif -%}
+            </roleTerm>
+        </role>
+    </name>
+{% endif %}
