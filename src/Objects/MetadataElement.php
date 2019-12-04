@@ -175,7 +175,7 @@ class MetadataElement
                 $childData = array_merge($childData, $child->getDataArray());
             }
         }
-        if ((!isset($this->value) || empty($this->value)) && count($childData) == 0) {
+        if ((!isset($this->value) || empty($this->value)) && !$explodeForChild && count($childData) == 0) {
             return $data;
         }
         if ($explodeForChild) {
