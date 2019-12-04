@@ -58,8 +58,8 @@ class Conversion extends Command
               'Path to the YAML configuration file.')
             ->addArgument('directory', InputArgument::REQUIRED,
               'Path to output directory')
-            ->addOption('output', 'o', InputOption::VALUE_OPTIONAL,
-                'The output metadata format', 'MODS')
+            ->addOption('templatePath', 't', InputOption::VALUE_OPTIONAL,
+                'The full path to the twig template to use', "mods.twig")
             ->addOption('zipfile', 'z', InputArgument::OPTIONAL,
               'File name to output zipfile')
             ->addOption('delimiter', 'd', InputArgument::OPTIONAL,
@@ -74,7 +74,12 @@ class Conversion extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         if (!is_null($input->getArgument('yamlfile'))) {
-            $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../../templates');
+            $template = $input->getOption('templatePath');
+            $templateDir = dirname($template);
+            if (empty($templateDir) || ($templateDir == '.' && !file_exists($template))) {
+                $templateDir = __DIR__ . '/../../templates';
+            }
+            $loader = new \Twig\Loader\FilesystemLoader($templateDir);
             $this->twig = new \Twig\Environment($loader);
             $yamlname = $input->getArgument('yamlfile');
             // read in the YAML glue file
@@ -165,7 +170,10 @@ class Conversion extends Command
                 }
 
                 $dataArray = $this->metadataMgr->getMetadataArray();
-                $template = $this->twig->load('mods.twig');
+
+                $templatePath = $input->getOption('templatePath');
+                $templateName = basename($templatePath);
+                $template = $this->twig->load($templateName);
                 $metadata = $template->render($dataArray);
 
 

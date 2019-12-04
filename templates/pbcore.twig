@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pbcoreDescriptionDocument xmlns="http://www.pbcore.org/PBCore/PBCoreNamespace.html" xmlns:pb="http://www.pbcore.org/PBCore/PBCoreNamespace.html">
+{% spaceless %}
+{% set creatorList = ['author', 'aut', 'photographer', 'pht'] %}
+    <pbcoreTitle>{{- title.value -}}</pbcoreTitle>
+     {% if names is not empty %}
+        {% for name in names %}
+            {% if name.role.value in creatorList %}
+                {% include 'pbcore.name.creator.twig' %}
+            {% else %}
+                {% include 'pbcore.name.contrib.twig' %}
+            {% endif %}
+        {% endfor %}
+    {% endif %} 
+    {% if hierarchicGeographic is not empty %}
+        {%  for geo in hierarchicGeographic %}
+            {% include 'pbcore.geographic.twig' %}
+        {% endfor %}
+    {% endif %}
+    <pbcoreInstantiation>
+      <instantiationIdentifier>## REQUIRED ##</instantiationIdentifier>
+      {% if dateIssued is not empty %}<instantiationDate>{{- dateIssued.value -}}</instantiationDate>{% endif %}
+    </pbcoreInstantiation>
+{% endspaceless %}
+</pbcoreDescriptionDocument>
+

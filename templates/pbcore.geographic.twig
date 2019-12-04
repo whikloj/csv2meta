@@ -1,0 +1,17 @@
+{% set geo_string = "" %}
+{% set props = ['continent', 'country', 'state', 'county', 'city', 'citysection'] %}
+{% for item in props %}
+  {% if attribute(geo, item) is not empty %}
+    {% if geo_string is not empty %}
+      {% set geo_string = geo_string ~ " -- " ~ attribute(geo, item).value %}
+    {% else %}
+      {% set geo_string = attribute(geo, item).value %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+{% if geo_string is not empty %}
+<pbcoreCoverage>
+   <coverage>{{- geo_string -}}</coverage>
+   <coverageType>spatial</coverageType>
+</pbcoreCoverage>
+{% endif %}

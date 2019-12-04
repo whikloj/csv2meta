@@ -1,0 +1,6 @@
+{% if name.value is not empty %}
+    <pbcoreContributor>
+        <contributor>{{- name.value -}}</contributor>
+        <contributorRole>{{-  name.role.value -}}</contributorRole>
+    </pbcoreContributor>
+{% endif %}
