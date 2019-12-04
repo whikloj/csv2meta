@@ -1,9 +1,9 @@
-{% spaceless %}
 <?xml version="1.0" encoding="UTF-8"?>
 <mods xmlns="http://www.loc.gov/mods/v3"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema"
       version="3.4">
+    {% spaceless %}
     <titleInfo>
         <title>{{- title.value -}}</title>
         {% if subtitle is not empty %}<subTitle>{{- subtitle.value -}}</subTitle>{% endif %}
@@ -23,7 +23,7 @@
     {% endif %}
     {% if pages is not empty %}
         <physicalDescription>
-            <extent{% if pages.unit %} unit="{{- pages.type -}}"{% endif %}>
+            <extent{% if pages.unit %} unit="{{- pages.unit -}}"{% endif %}>
                 {{- pages.value -}}
             </extent>
         </physicalDescription>
@@ -33,5 +33,5 @@
             {% include 'mods.geographic.twig' %}
         {% endfor %}
     {% endif %}
+    {%  endspaceless %}
 </mods>
-{%  endspaceless %}

@@ -210,7 +210,7 @@ class MetadataElement
             $values = explode(';', $this->value);
             $data[$this->twig_field] = [];
             foreach ($values as $value) {
-                $data[$this->twig_field][] = ['value' => $value];
+                $data[$this->twig_field][] = ['value' => trim($value)];
                 $connect = &$data[$this->twig_field][count($data[$this->twig_field]) - 1];
                 $connect = $this->addAttributes($connect);
                 $connect = $this->addChildren($connect, $childData);
