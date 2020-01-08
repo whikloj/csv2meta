@@ -13,13 +13,17 @@
             {% include 'mods.name.twig' %}
         {% endfor %}
     {% endif %}
-    {% if dateIssued is not empty %}
-    <dateIssued>{{- dateIssued.value -}}</dateIssued>
-    {% endif %}
-    {% if identifiers is not empty %}
-        {%  for identifier in identifiers %}
-        <identifier{% if identifier.type %} type="{{- identifier.type -}}"{% endif %}>{{- identifier.value -}}</identifier>
-        {% endfor %}
+    {% if dateIssued is not empty or identifiers is not empty %}
+        <originInfo>
+            {% if dateIssued is not empty %}
+            <dateIssued>{{- dateIssued.value -}}</dateIssued>
+            {%  endif %}
+            {% if identifiers is not empty %}
+                {%  for identifier in identifiers %}
+                    <identifier{% if identifier.type %} type="{{- identifier.type -}}"{% endif %}>{{- identifier.value -}}</identifier>
+                {% endfor %}
+            {% endif %}
+        </originInfo>
     {% endif %}
     {% if pages is not empty %}
         <physicalDescription>

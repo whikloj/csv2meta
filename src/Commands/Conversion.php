@@ -181,6 +181,7 @@ class Conversion extends Command
                     $filename = sprintf("%s%04d.%s", FILE_PREFIX, $itemcnt,
                       $extension);
                 } else {
+                    $filename = str_replace([' ','\'',',','-'], '_', $filename);
                     $filename = sprintf("%s.%s", $filename, $extension);
                 }
 
